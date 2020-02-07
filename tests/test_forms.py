@@ -13,6 +13,7 @@ from .forms import (
     FixedCurrencyRequiredPriceForm,
     FixedCurrencyOptionalPriceForm,
 )
+from .models import Model
 
 
 def test_money_input_widget_renders():
@@ -115,7 +116,7 @@ def test_form_field_fixed_currency_and_optional_none_on_no_amount():
     assert form.cleaned_data["price"] is None
 
 
-def test_form_field_passes_all_validations_for_correct_taxed_money_value():
+def test_model_form_field_passes_all_validations_for_correct_money_value():
     form = ModelForm(
         data={
             "price_net_0": "20",
@@ -126,6 +127,15 @@ def test_form_field_passes_all_validations_for_correct_taxed_money_value():
     )
     form.full_clean()
     assert form.errors == {}
+    assert form.instance.price_net == Money('20', 'BTC')
+    assert form.instance.price_gross == Money('25', 'BTC')
+
+
+def test_model_form_field_initial_from_model():
+    instance = Model(price_net=Money('10', 'BTC'), price_gross=Money('15', 'BTC'))
+    form = ModelForm(instance=instance)
+    assert form.initial['price_net'] == Money('10', 'BTC')
+    assert form.initial['price_gross'] == Money('15', 'BTC')
 
 
 def test_form_field_validation_passes_if_both_values_are_none():

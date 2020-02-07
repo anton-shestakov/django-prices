@@ -8,7 +8,7 @@ from django.core.validators import ValidationError
 from prices import Money
 
 from .utils.locale import get_locale_data
-from .validators import MaxMoneyValidator, MinMoneyValidator, MoneyPrecisionValidator
+from .validators import MaxMoneyValidator, MinMoneyValidator
 from .widgets import FixedCurrencyMoneyInput, MoneyInput
 
 __all__ = ("MoneyField", "MoneyInput")
@@ -71,7 +71,6 @@ class MoneyField(forms.MultiValueField):
         )
 
         self.validators = list(itertools.chain(self.default_validators, validators))
-        self.validators.append(MoneyPrecisionValidator(max_digits, decimal_places))
         if max_values is not None:
             self.validators.extend(
                 [MaxMoneyValidator(limit_value) for limit_value in max_values]

@@ -12,10 +12,7 @@ AVAILABLE_CURRENCIES = ["BTC", "USD"]
 class ModelForm(forms.ModelForm):
     class Meta:
         model = models.Model
-        fields = []
-
-    price_net = MoneyField(available_currencies=AVAILABLE_CURRENCIES)
-    price_gross = MoneyField(available_currencies=AVAILABLE_CURRENCIES)
+        fields = ['price_net', 'price_gross']
 
 
 class RequiredPriceForm(forms.Form):

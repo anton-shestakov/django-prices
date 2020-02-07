@@ -76,6 +76,15 @@ def test_money_field_formfield_returns_form_with_select_input_if_choices_are_def
     assert isinstance(form_field.widget, widgets.MoneyInput)
 
 
+def test_money_field_formfield_digits():
+    field = Model.price_net
+    amount_field = Model._meta.get_field(field.amount_field)
+    form_field = field.formfield()
+    decimal_field, _ = form_field.fields
+    assert decimal_field.max_digits == amount_field.max_digits
+    assert decimal_field.decimal_places == amount_field.decimal_places
+
+
 def test_money_field_init():
     field = models.MoneyField(amount_field="amount", currency_field="currency")
     assert field.get_default() == Money(0, None)

@@ -60,24 +60,28 @@ class NonDatabaseFieldBase:
         return value
 
 
-class MoneyField(NonDatabaseFieldBase):
+class MoneyField(NonDatabaseFieldBase, Field):
 
     description = (
         "A field that combines an amount of money and currency code into Money"
         "It allows to store prices with different currencies in one database."
     )
+    choices = None
 
     def __init__(
         self,
         amount_field="price_amount",
         currency_field="price_currency",
         verbose_name=None,
+        editable=True,
         **kwargs
     ):
         super(MoneyField, self).__init__()
         self.amount_field = amount_field
         self.currency_field = currency_field
         self.verbose_name = verbose_name
+        self.editable = editable
+        self.default = self.get_default
 
     def __str__(self):
         return "MoneyField(amount_field=%s, currency_field=%s)" % (
@@ -106,11 +110,19 @@ class MoneyField(NonDatabaseFieldBase):
 
     def formfield(self, **kwargs):
         available_currencies = []
+        max_digits = None
+        decimal_places = None
         if hasattr(self, "model"):
             available_currencies = self.model._meta.get_field(
                 self.currency_field
             ).choices
-        return forms.MoneyField(available_currencies=available_currencies)
+            amount_field = self.model._meta.get_field(self.amount_field)
+            max_digits = amount_field.max_digits
+            decimal_places = amount_field.decimal_places
+        return forms.MoneyField(
+            available_currencies=[c[0] for c in available_currencies],
+            max_digits=max_digits, decimal_places=decimal_places,
+            label=self.verbose_name)
 
     def get_default(self):
         default_currency = None
